@@ -1,8 +1,14 @@
-function B = iphone5_cross_stitch(A)
+function B = iphone5_cross_stitch(A,cMapFun,flipFirstMap,numColors)
 % IPHONE5_CROSS_STITCH takes in a picture and outputs a cropped on
 %
 %USAGE
 %   B = cross_stitch(A)
+%   B = cross_stitch(A,cMapFun)
+%   B = cross_stitch(A,cMapFun,flipFirstMap)
+%   B = cross_stitch(A,cMapFun,flipFirstMap,numColors)
+%
+%INPUT
+%   to be documented
 %
 %AUTHORSHIP
 %   Created by David A. Gross on 19 Feb 2013 at 6:30 PM
@@ -11,9 +17,9 @@ function B = iphone5_cross_stitch(A)
 %   fssp, mandelbroidery
 
 % configure colors
-cMapFun = @autumn;
-flipFirst = true;
-numColors = 6;
+if nargin < 2, cMapFun = @autumn; end
+if nargin < 3, flipFirstMap = true; end
+if nargin < 4, numColors = 6; end
 
 % transfer (this isn't fancy because we aren't resizing)
 if ~isequal(size(A),[77,35])
@@ -43,7 +49,7 @@ B(10,3:15) = nan;
 B(11,4:13) = nan;
 
 % plotting
-if flipFirst
+if flipFirstMap
     cMap = [flipud( cMapFun(numColors) ); cMapFun(numColors); 0 0 0];
 else
     cMap = [cMapFun(numColors); flipud( cMapFun(numColors) ); 0 0 0];
