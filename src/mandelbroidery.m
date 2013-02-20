@@ -1,9 +1,35 @@
-function A = mandelbroidery()
+function A = mandelbroidery(center, window, aspectRatio, grid, depth)
 % MANDELBROIDERY - Mandelbrot Embroidery Pattern
 %
 %USAGE
 %   A = mandelbroidery() will create a matrix of color intensities based on
 %   rates of divergence from the edge of the mandelbrot set
+%
+%   A = mandelbroidery(center, window, aspectRatio, grid, depth) will
+%   override the default values for input configurations.
+%
+%INPUTS
+%
+%   center <1x1 COMPLEX> will set the center of the view
+%   * defaults to .14 + .93*1i *
+%
+%   window <1x1 NUMERIC> sets the width of the viewing window along the
+%   real line
+%   * defaults to .1 *
+%
+%   aspectRatio <1x1 NUMERIC> sets the height-to-width ratio of the viewing
+%   window
+%   * defaults to 2.2, appropriate for an iPhone 5 cross-stitch case *
+%
+%   grid <1x2 NUMERIC> sets the grid density of the complex seeds to check
+%   * defaults to [35, 77], appropriate for an iPhone 5 cross-stitch case *
+%   NOTE these dimensions are the tranpose of the output, as they are
+%   passed to MESHGRID, which does that when used this way.
+%
+%   depth <1x1 NUMERIC> sets the depth at which we decide a point is or is
+%   not in the mandelbrot set.  Experiment with this for your artistic
+%   pleasure!
+%   * defaults to 1000 *
 %
 %REFERENCES
 %   [1] http://blogs.mathworks.com/loren/ ...
@@ -16,20 +42,21 @@ function A = mandelbroidery()
 % See Also
 %   iphone5_cross_stich
 
+% configure inputs
+if nargin < 1, center = .14 + .93*1i; end
+if nargin < 2, window = .1; end
+if nargin < 3, aspectRatio = 2.2; end
+if nargin < 4, grid = [35,77]; end
+if nargin < 5, depth = 1000; end
+
 % configure sizing
-c0 = .14 + .93*1i;
-% c0 = .105 + .93*1i;
-depth = 1000;
-% xlim = [-.5, .5] * .09;
-% xlim = [-.5, .5] * .006;
-xlim = [-.5, .5] * .1;
-ylim = 2.2*xlim;
-grid = [35,77];
+xlim = [-.5, .5] * window;
+ylim = aspectRatio*xlim;
 x = linspace( xlim(1), xlim(2), grid(1) );
 y = linspace( ylim(1), ylim(2), grid(2) );
 
 % make grid
-[xGrid,yGrid] = meshgrid( x - real(c0), y - imag(c0));
+[xGrid,yGrid] = meshgrid( x - real(center), y - imag(center));
 c = xGrid + 1i * yGrid;
 count = zeros(size(c));
 

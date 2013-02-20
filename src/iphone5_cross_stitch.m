@@ -1,20 +1,47 @@
 function B = iphone5_cross_stitch(A,cMapFun,flipFirstMap,numColors)
-% IPHONE5_CROSS_STITCH takes in a picture and outputs a cropped on
+% IPHONE5_CROSS_STITCH takes in a picture and outputs a cropped one
 %
 %USAGE
-%   B = cross_stitch(A)
-%   B = cross_stitch(A,cMapFun)
-%   B = cross_stitch(A,cMapFun,flipFirstMap)
-%   B = cross_stitch(A,cMapFun,flipFirstMap,numColors)
+%   B = cross_stitch(A) will create an iPhone 5 cross-stitch patten from
+%   the matrix A provided.
 %
-%INPUT
-%   to be documented
+%   B = cross_stitch(A,cMapFun,flipFirstMap,numColors) will override the
+%   default input configuration.
+%
+%INPUTS
+%   A <77 x 35 ARRAY> will be passed to IMAGESCWITHNAN (a wrapped version
+%   of IMAGESC) for plotting, after the corners and camera region have been
+%   filled with NaN
+%
+%   cMapFun <1x1 FUNCTION_HANDLE> is the colormap function that will set the
+%   tones of the image.  Could be a MATLAB built-in colormap or an
+%   user-defined one.
+%   * defaults to @autumn *
+%
+%   flipFirstMap <1x1 LOGICAL> denotes whether to flip the colormap first
+%   before appending it or after. This is built for the madelbroidery
+%   function which is plotting the divergence of points outside the
+%   mandelbrot set.  In doing so, we'd like to have colors ramp up and back
+%   down along a given colormap.  Experiment with this to see whether you
+%   prefer "ascending" or "descending" colors.
+%   * defaults to true *
+%
+%   numColors <1x1 NUMERIC> denotes the number of colors to specify to the
+%   colormap function cMapFun.  This defines the course-ness of the color
+%   map, and is useful when a limited number of colors will be available
+%   for the project you are making.
+%   * defaults to 6 *
+%
+%OUTPUTS
+%
+%   B <77 x 35 ARRAY> will be A filled with NaN in appropriate places
+%   (corners and camera region).
 %
 %AUTHORSHIP
 %   Created by David A. Gross on 19 Feb 2013 at 6:30 PM
 %
 % See Also
-%   fssp, mandelbroidery
+%   mandelbroidery, imagesc, colormap, colormapeditor, imagescwithnan
 
 % configure colors
 if nargin < 2, cMapFun = @autumn; end
@@ -71,9 +98,10 @@ axes(ax1)
 
 end
 
-% modified from http://stackoverflow.com/questions/8481324/contrasting-color-for-nans-in-imagesc
 function h = imagescwithnan(a,cm,nanclr)
 % IMAGESC with NaNs assigning a specific color to NaNs
+% modified from http://stackoverflow.com/questions/8481324/ ...
+% contrasting-color-for-nans-in-imagesc
 
 %# find minimum and maximum
 amin=min(a(:));
