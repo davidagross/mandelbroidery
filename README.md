@@ -16,6 +16,15 @@ that was just my style.
 After having worked with cellular automata in a previous project [2], I wanted
 something equally interesting but also colorful.
 
+Get Started
+-----------
+Simply download one of the png images, or type
+```
+>> iphone5_cross_stitch(mandelbroidery);
+```
+in the MATLAB command window and being experimenting with your own colormaps
+and mandelbrot pan & zoom.
+
 Development
 -----------
 
