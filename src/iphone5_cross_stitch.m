@@ -58,14 +58,16 @@ dims = size(B);
 % masking
 for r = 1:3
     B = rot90(B);
-    B(1,1) = nan; B(1,2) = nan;
-    B(2,1) = nan; 
+    B(1,1) = nan; B(1,2) = nan; B(1,3) = nan; B(1,4) = nan;
+    B(2,1) = nan; B(2,2) = nan;
+    B(3,1) = nan; 
+    B(4,1) = nan; 
 end
 B = rot90(B);
 
-B(1,1:13) = nan;
+B(1,1:15) = nan;
 B(2,1:15) = nan;
-B(3,1:15) = nan;
+B(3,1:16) = nan;
 B(4,1:16) = nan;
 B(5,1:16) = nan;
 B(6,1:16) = nan;
