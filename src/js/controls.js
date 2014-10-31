@@ -24,14 +24,6 @@
  *
  */
  
- /*
- * Just a shorthand function: Fetch given element, jQuery-style
- */
-function $(id)
-{
-	return document.getElementById(id);
-}
- 
  function focusOnSubmit()
 {
 	var e = $('submitButton');
@@ -40,18 +32,26 @@ function $(id)
 
 function main()
 {
-	$('viewPNG').onclick = function(event)
-	{
-		window.location = canvas.toDataURL('image/png');
-	};
-
-	$('steps').onkeypress = function(event)
+	$('steps').onchange = function(event)
 	{
 		// disable auto-iterations when user edits it manually
 		$('autoIterations').checked = false;
+		draw(getColorPicker());
 	}
-
-	$('resetButton').onclick = function(even)
+	
+	$('autoIterations').onchange = function(event) { if ($('autoIterations').checked) { draw(getColorPicker()); } }
+	
+	$('escapeRadius').onchange = function(event) { draw(getColorPicker()); }
+	
+	$('colorScheme').onchange = function(event) { draw(getColorPicker()); }
+	
+	$('colorSmoothing').onchange = function(event) { draw(getColorPicker()); }
+	
+	$('patternWidth').onchange = function(event) { draw(getColorPicker()); }
+	
+	$('patternHeight').onchange = function(event) { draw(getColorPicker()); }
+	
+	$('resetButton').onclick = function(event)
 	{
 		$('settingsForm').reset();
 		setTimeout(function() { location.hash = ''; }, 1);
@@ -61,6 +61,11 @@ function main()
 		draw(getColorPicker());
 	};
 
+	$('viewPNG').onclick = function(event)
+	{
+		window.location = canvas.toDataURL('image/png');
+	};
+	
 	if ( dragToZoom == true ) {
 		var box = null;
 
@@ -87,7 +92,8 @@ function main()
 			}
 		}
 
-		var zoomOut = function(event) {
+		var reCenter = function(event) {
+			
 			var x = event.clientX;
 			var y = event.clientY;
 
@@ -101,25 +107,33 @@ function main()
 			y = yRange[0] + y*dy;
 
 			lookAt = [x, y];
+		
+		}
+		
+		var zoomOut = function(event) {
+			
+			reCenter(event);
 
-			if ( event.shiftKey ) {
-				zoom[0] /= 0.5;
-				zoom[1] /= 0.5;
-			}
+			zoom[0] /= 0.5;
+			zoom[1] /= 0.5;
 
-			draw(getColorPicker());
 		};
-
+		
 		$('canvasControls').onmouseup = function(e)
 		{
 			if ( box != null ) {
-				// Zoom out?
-				if ( e.shiftKey ) {
+				
+				// single right or left click
+				if (box[0] == box[2] && box[1] == box[3]) {
 					box = null;
-					zoomOut(e);
+					if (e.shiftKey)
+						zoomOut(e);
+					else
+						reCenter(e);
+					 draw(getColorPicker()); 
 					return;
 				}
-
+				
 				/*
 				 * Clear entire canvas
 				 */
@@ -215,7 +229,6 @@ function main()
 	 * Yeah, I know, the code is a total mess at the moment.	I'll get back
 	 * to that.
 	 */
-	draw(getColorPicker());
 	draw(getColorPicker());
 }
 

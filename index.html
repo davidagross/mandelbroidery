@@ -67,9 +67,15 @@
           </td>
         </tr>
 		<tr>
+          <td>Color smoothing</td>
+          <td>
+            <input type="checkbox" id="colorSmoothing" checked="checked"/>
+          </td>
+        </tr>
+		<tr>
           <td>Pattern Width (cells)</td>
           <td><input class="textInput" size="4" type="text"
-                id="patternWidth" value="100" /></td>
+                id="patternWidth" value="200" /></td>
         </tr>
 		<tr>
           <td>Pattern Height (cells)</td>
@@ -84,8 +90,8 @@
           <td colspan="2">&nbsp;</td>
         </tr>
         <tr>
-          <td colspan="2"><input type="submit" id="submitButton" value="Draw" />
-          &nbsp;
+          <td colspan="2"><!--<input type="submit" id="submitButton" value="Draw" />
+          &nbsp;-->
           <input type="reset" id="resetButton" value="Reset" />
           &nbsp;
           <input type="button" id="viewPNG" value="View as PNG" />
@@ -104,8 +110,8 @@
           Based on <a href="http://csl.sublevel3.org">Christian Stigen Larsen</a> &mdash;
           <a href="https://github.com/cslarsen/mandelbrot-js">Code on Github</a>
           <br/> &nbsp; <br/>
-          Click + drag to pan, double-click to zoom in, shift + double-click to zoome out.
-          You can change the settings above and hit <i>Draw</i> to render anew.
+          Click + drag to zoom, single-click to recenter, and shift-click zoom out.
+          You can change the settings above to render anew.
         </small>
       </div>
     </div>
@@ -119,6 +125,7 @@
       <span id="infoText"></span>
     </div>
 	
+	<script type="text/javascript" src="src/js/global.js"></script>
 	<script type="text/javascript" src="src/js/MandelGrid.js"></script>
 	<script type="text/javascript" src="src/js/drawing.js"></script>
 	<script type="text/javascript" src="src/js/coloring.js"></script>    

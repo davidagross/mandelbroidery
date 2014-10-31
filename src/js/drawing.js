@@ -88,7 +88,7 @@ function updateInfoBox()
 function readHashTag()
 {
 	var redraw = false;
-	var tags = location.hash.split('&');
+	var tags = location.hash.slice(1).split('&');
 
 	for ( var i=0; i<tags.length; ++i ) {
 		var tag = tags[i].split('=');
@@ -96,7 +96,7 @@ function readHashTag()
 		var val = tag[1];
 
 		switch ( key ) {
-			case '#zoom': {
+			case 'zoom': {
 				var z = val.split(',');
 				zoom = [parseFloat(z[0]), parseFloat(z[1])];
 				redraw = true;

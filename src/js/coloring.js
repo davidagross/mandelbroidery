@@ -82,7 +82,11 @@ function smoothColor(steps, n, Tr, Ti)
 	 * but can be simplified using some elementary logarithm rules to
 	 */
 	 
-	return 5 + n - logHalfBase - Math.log(Math.log(Tr+Ti))*logBase;
+	if ( $('colorSmoothing').checked ) {
+		return 5 + n - logHalfBase - Math.log(Math.log(Tr+Ti))*logBase;
+	} else {
+		return n
+	}
 }
 
 function pickColorHSV1(steps, n, Tr, Ti)
