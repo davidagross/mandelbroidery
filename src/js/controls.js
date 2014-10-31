@@ -45,6 +45,8 @@ function main()
 	
 	$('colorScheme').onchange = function(event) { draw(getColorPicker()); }
 	
+	$('numColors').onchange = function(event) { draw(getColorPicker()); }
+	
 	$('colorSmoothing').onchange = function(event) { draw(getColorPicker()); }
 	
 	$('patternWidth').onchange = function(event) { draw(getColorPicker()); }

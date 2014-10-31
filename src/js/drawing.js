@@ -207,7 +207,8 @@ function draw(pickColor)
 	
 	var pw = $('patternWidth').value;
 	var ph = $('patternHeight').value;
-
+	var numColors = $('numColors').value;
+	
 	var grid = new MandelGrid(pw,ph,xRange,yRange,escapeRadius,steps);
 	
 	var dwpx = Math.round(canvas.width / grid.width);
@@ -229,7 +230,8 @@ function draw(pickColor)
 		if ( sx / dwpx % 1 == 0 && x < grid.width - 1 && sx != 0) { x += 1; }
 	
 			var p = grid.cells[y][x];
-			var color = pickColor(steps, p[0], p[1], p[2]);
+			var color = pickColor(steps, p[0], p[1], p[2], numColors);
+			// color = segment_rgb(color,numColors);
 			img.data[off++] = color[0];
 			img.data[off++] = color[1];
 			img.data[off++] = color[2];

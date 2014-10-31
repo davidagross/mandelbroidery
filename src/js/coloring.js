@@ -38,7 +38,7 @@ function getColorPicker()
  * Convert hue-saturation-value/luminosity to RGB.
  *
  * Input ranges:
- *	 H =	 [0, 360] (integer degrees)
+ *	 H =   [0, 360] (integer degrees)
  *	 S = [0.0, 1.0] (float)
  *	 V = [0.0, 1.0] (float)
  */
@@ -68,6 +68,16 @@ function hsv_to_rgb(h, s, v)
 	return rgb;
 }
 
+/*
+function segment_rgb(rgb,segments)
+{
+	rgb[0] = Math.round(rgb[0] / 255 * segments) * 255 / segments;
+	rgb[1] = Math.round(rgb[1] / 255 * segments) * 255 / segments;
+	rgb[2] = Math.round(rgb[2] / 255 * segments) * 255 / segments;
+	return rgb;
+}
+*/
+
 // Some constants used with smoothColor
 var logBase = 1.0 / Math.log(2.0);
 var logHalfBase = Math.log(0.5)*logBase;
@@ -89,35 +99,45 @@ function smoothColor(steps, n, Tr, Ti)
 	}
 }
 
-function pickColorHSV1(steps, n, Tr, Ti)
+function pickColorHSV1(steps, n, Tr, Ti, segments)
 {
 	if ( n == steps ) // converged?
 		return interiorColor;
 
 	var v = smoothColor(steps, n, Tr, Ti);
-	var c = hsv_to_rgb(360.0*v/steps, 1.0, 1.0);
+	var hue = 360.0*v/steps;
+	hue = Math.round(hue / 360.0 * segments) * 360.0 / segments;
+	var c = hsv_to_rgb(hue, 1.0, 1.0);
 	c.push(255); // alpha
 	return c;
 }
 
-function pickColorHSV2(steps, n, Tr, Ti)
+function pickColorHSV2(steps, n, Tr, Ti, segments)
 {
 	if ( n == steps ) // converged?
 		return interiorColor;
 
 	var v = smoothColor(steps, n, Tr, Ti);
-	var c = hsv_to_rgb(360.0*v/steps, 1.0, 10.0*v/steps);
+	var hue = 360.0*v/steps;
+	hue = Math.round(hue / 360.0 * segments) * 360.0 / segments;
+	var value = 10.0*v/steps;
+	value = Math.round(value / 10.0 * segments) * 10.0 / segments;
+	var c = hsv_to_rgb(hue, 1.0, value);
 	c.push(255); // alpha
 	return c;
 }
 
-function pickColorHSV3(steps, n, Tr, Ti)
+function pickColorHSV3(steps, n, Tr, Ti, segments)
 {
 	if ( n == steps ) // converged?
 		return interiorColor;
 
 	var v = smoothColor(steps, n, Tr, Ti);
-	var c = hsv_to_rgb(360.0*v/steps, 1.0, 10.0*v/steps);
+	var hue = 360.0*v/steps;
+	hue = Math.round(hue / 360.0 * segments) * 360.0 / segments;
+	var value = 10.0*v/steps;
+	value = Math.round(value / 10.0 * segments) * 10.0 / segments;
+	var c = hsv_to_rgb(hue, 1.0, value);
 
 	// swap red and blue
 	var t = c[0];
@@ -128,23 +148,29 @@ function pickColorHSV3(steps, n, Tr, Ti)
 	return c;
 }
 
-function pickColorGrayscale(steps, n, Tr, Ti)
+function pickColorGrayscale(steps, n, Tr, Ti, segments)
 {
 	if ( n == steps ) // converged?
 		return interiorColor;
 
 	var v = smoothColor(steps, n, Tr, Ti);
 	v = Math.floor(512.0*v/steps);
+	
+	v = Math.round(v / 512.0 * segments) * 512.0 / segments;	
+	
 	if ( v > 255 ) v = 255;
 	return [v, v, v, 255];
 }
 
-function pickColorGrayscale2(steps, n, Tr, Ti)
+function pickColorGrayscale2(steps, n, Tr, Ti, segments)
 {
 	if ( n == steps ) { // converged?
 		var c = 255 - Math.floor(255.0*Math.sqrt(Tr+Ti)) % 255;
 		if ( c < 0 ) c = 0;
 		if ( c > 255 ) c = 255;
+		
+		c = Math.round(c / 255.0 * segments) * 255.0 / segments;
+		
 		return [c, c, c, 255];
 	}
 
