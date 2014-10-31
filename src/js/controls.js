@@ -124,7 +124,7 @@ function main()
 			if ( box != null ) {
 				
 				// single right or left click
-				if (box[0] == box[2] && box[1] == box[3]) {
+				if ((box[0] == box[2] && box[1] == box[3]) || (box[2] == 0 && box[3] == 0)) {
 					box = null;
 					if (e.shiftKey)
 						zoomOut(e);
