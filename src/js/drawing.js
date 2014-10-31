@@ -55,23 +55,9 @@ var ctx = canvas.getContext('2d');
 var img = ctx.createImageData(canvas.width, 1);
 
 /*
- * Just a shorthand function: Fetch given element, jQuery-style
- */
-function $(id)
-{
-	return document.getElementById(id);
-}
-
-function focusOnSubmit()
-{
-	var e = $('submitButton');
-	if ( e ) e.focus();
-}
-
-/*
  * Update URL's hash with render parameters so we can pass it around.
  */
-function updateHashTag(samples, iterations)
+function updateHashTag(iterations)
 {
 	var radius = $('escapeRadius').value;
 	var scheme = $('colorScheme').value;
@@ -192,11 +178,11 @@ function draw(pickColor)
 		reInitCanvas = false;
 
 		canvas = $('canvasMandelbrot');
-		canvas.width	= window.innerWidth;
+		canvas.width  = window.innerWidth;
 		canvas.height = window.innerHeight;
 
 		ccanvas = $('canvasControls');
-		ccanvas.width	= window.innerWidth;
+		ccanvas.width  = window.innerWidth;
 		ccanvas.height = window.innerHeight;
 
 		ctx = canvas.getContext('2d');
@@ -227,7 +213,7 @@ function draw(pickColor)
 	var dwpx = Math.round(canvas.width / grid.width);
 	var dhpx = Math.round(canvas.height / grid.height);
 	
-	updateHashTag(1, steps);
+	updateHashTag(steps);
 	updateInfoBox();
 
 	// Only enable one render at a time
@@ -293,186 +279,3 @@ function draw(pickColor)
 
 	render();
 }
-
-function main()
-{
-	$('viewPNG').onclick = function(event)
-	{
-		window.location = canvas.toDataURL('image/png');
-	};
-
-	$('steps').onkeypress = function(event)
-	{
-		// disable auto-iterations when user edits it manually
-		$('autoIterations').checked = false;
-	}
-
-	$('resetButton').onclick = function(even)
-	{
-		$('settingsForm').reset();
-		setTimeout(function() { location.hash = ''; }, 1);
-		zoom = [zoomStart, zoomStart];
-		lookAt = lookAtDefault;
-		reInitCanvas = true;
-		draw(getColorPicker());
-	};
-
-	if ( dragToZoom == true ) {
-		var box = null;
-
-		$('canvasControls').onmousedown = function(e)
-		{
-			if ( box == null )
-				box = [e.clientX, e.clientY, 0, 0];
-		}
-
-		$('canvasControls').onmousemove = function(e)
-		{
-			if ( box != null ) {
-				var c = ccanvas.getContext('2d');
-				c.lineWidth = 1;
-
-				// clear out old box first
-				c.clearRect(0, 0, ccanvas.width, ccanvas.height);
-
-				// draw new box
-				c.strokeStyle = '#FF3B03';
-				box[2] = e.clientX;
-				box[3] = e.clientY;
-				c.strokeRect(box[0], box[1], box[2]-box[0], box[3]-box[1]);
-			}
-		}
-
-		var zoomOut = function(event) {
-			var x = event.clientX;
-			var y = event.clientY;
-
-			var w = window.innerWidth;
-			var h = window.innerHeight;
-
-			var dx = (xRange[1] - xRange[0]) / (0.5 + (canvas.width-1));
-			var dy = (yRange[1] - yRange[0]) / (0.5 + (canvas.height-1));
-
-			x = xRange[0] + x*dx;
-			y = yRange[0] + y*dy;
-
-			lookAt = [x, y];
-
-			if ( event.shiftKey ) {
-				zoom[0] /= 0.5;
-				zoom[1] /= 0.5;
-			}
-
-			draw(getColorPicker());
-		};
-
-		$('canvasControls').onmouseup = function(e)
-		{
-			if ( box != null ) {
-				// Zoom out?
-				if ( e.shiftKey ) {
-					box = null;
-					zoomOut(e);
-					return;
-				}
-
-				/*
-				 * Clear entire canvas
-				 */
-				var c = ccanvas.getContext('2d');
-				c.clearRect(0, 0, ccanvas.width, ccanvas.height);
-
-				/*
-				 * Calculate new rectangle to render
-				 */
-				var x = Math.min(box[0], box[2]) + Math.abs(box[0] - box[2]) / 2.0;
-				var y = Math.min(box[1], box[3]) + Math.abs(box[1] - box[3]) / 2.0;
-
-				var dx = (xRange[1] - xRange[0]) / (0.5 + (canvas.width-1));
-				var dy = (yRange[1] - yRange[0]) / (0.5 + (canvas.height-1));
-
-				x = xRange[0] + x*dx;
-				y = yRange[0] + y*dy;
-
-				lookAt = [x, y];
-
-				/*
-				 * This whole code is such a mess ...
-				 */
-
-				var xf = Math.abs(Math.abs(box[0]-box[2])/canvas.width);
-				var yf = Math.abs(Math.abs(box[1]-box[3])/canvas.height);
-
-				zoom[0] *= Math.max(xf, yf); // retain aspect ratio
-				zoom[1] *= Math.max(xf, yf);
-
-				box = null;
-				draw(getColorPicker());
-			}
-		}
-	}
-
-	/*
-	 * Enable zooming (currently, the zooming is inexact!) Click to zoom;
-	 * perfect to mobile phones, etc.
-	 */
-	if ( dragToZoom == false ) {
-		$('canvasMandelbrot').onclick = function(event)
-		{
-			var x = event.clientX;
-			var y = event.clientY;
-			var w = window.innerWidth;
-			var h = window.innerHeight;
-
-			var dx = (xRange[1] - xRange[0]) / (0.5 + (canvas.width-1));
-			var dy = (yRange[1] - yRange[0]) / (0.5 + (canvas.height-1));
-
-			x = xRange[0] + x*dx;
-			y = yRange[0] + y*dy;
-
-			lookAt = [x, y];
-
-			if ( event.shiftKey ) {
-				zoom[0] /= 0.5;
-				zoom[1] /= 0.5;
-			} else {
-				zoom[0] *= 0.5;
-				zoom[1] *= 0.5;
-			}
-
-			draw(getColorPicker());
-		};
-	}
-
-	/*
-	 * When resizing the window, be sure to update all the canvas stuff.
-	 */
-	window.onresize = function(event)
-	{
-		reInitCanvas = true;
-	};
-
-	/*
-	 * Read hash tag and render away at page load.
-	 */
-	readHashTag();
-
-	/*
-	 * This is the weirdest bug ever.	When I go directly to a link like
-	 *
-	 *	 mandelbrot.html#zoom=0.01570294345468629,0.010827482681521361&
-	 *	 lookAt=-0.3083866260309053,-0.6223590662533901&iterations=5000&
-	 *	 &escapeRadius=16&colorScheme=pickColorHSV2
-	 *
-	 * it will render a black image, but if I call the function twice, it
-	 * works nicely.	Must be a global variable that's not been set upon the
-	 * first entry to the function (TODO: Find out what's wrong).
-	 *
-	 * Yeah, I know, the code is a total mess at the moment.	I'll get back
-	 * to that.
-	 */
-	draw(getColorPicker());
-	draw(getColorPicker());
-}
-
-main();
