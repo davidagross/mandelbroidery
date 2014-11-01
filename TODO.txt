@@ -11,9 +11,7 @@ FROM MANDELBROT-JS:
 - Let dragging work outside window boundaries
 - Enable Julia rendering
 - Let dragging work over description and info box areas
-- Detect slow renderings and display ETA for them
-- Fix the auto-iterations function; consider creating an expanded polynomial
-  for it.
+- Fix the auto-iterations function; consider creating an expanded polynomial for it.
 - Add right-click to zoom out (instead of shift-click)
 - Add panning
 - Only render new parts when panning
