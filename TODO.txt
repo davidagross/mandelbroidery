@@ -1,9 +1,8 @@
 FROM MANDELBROIDERY:
 - Pick colors from a discrete number of places in the colormap
-- fillRect instead of all pixels
 - Add MATLAB colormaps
 - Add colormap editor?
-- Mask view to be of the pattern fixed pattern size
+- Mask view to be of the fixed pattern size
 - Set non-zero alpha outside of masked pattern
 - Updated README about MATLAB and JS
 

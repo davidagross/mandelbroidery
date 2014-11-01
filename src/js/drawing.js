@@ -46,13 +46,12 @@ var renderId = 0; // To zoom before current render is finished
 var canvas = $('canvasMandelbrot');
 canvas.width  = window.innerWidth;
 canvas.height = window.innerHeight;
-//
+
 var ccanvas = $('canvasControls');
 ccanvas.width	= window.innerWidth;
 ccanvas.height	= window.innerHeight;
-//
+
 var ctx = canvas.getContext('2d');
-var img = ctx.createImageData(canvas.width, 1);
 
 /*
  * Update URL's hash with render parameters so we can pass it around.
@@ -186,7 +185,6 @@ function draw(pickColor)
 		ccanvas.height = window.innerHeight;
 
 		ctx = canvas.getContext('2d');
-		img = ctx.createImageData(canvas.width, 1);
 
 		adjustAspectRatio(xRange, yRange, canvas);
 	}
@@ -211,8 +209,8 @@ function draw(pickColor)
 	
 	var grid = new MandelGrid(pw,ph,xRange,yRange,escapeRadius,steps);
 	
-	var dwpx = Math.round(canvas.width / grid.width);
-	var dhpx = Math.round(canvas.height / grid.height);
+	var dwpx = ~~ (canvas.width / grid.width);
+	var dhpx = ~~ (canvas.height / grid.height);
 	
 	updateHashTag(steps);
 	updateInfoBox();
@@ -220,64 +218,28 @@ function draw(pickColor)
 	// Only enable one render at a time
 	renderId += 1;
 
-	function drawLine(y,sy)
+	var startHeight = canvas.height;
+	var startWidth = canvas.width;
+	var ourRenderId = renderId;
+
+	for ( var y = 0 ; y < ph ; ++y )
 	{
-		var x = 0;
-		var off = 0;
+		if (renderId != ourRenderId ||
+			startHeight != canvas.height ||
+			startWidth != canvas.width )
+		{
+			// Stop drawing
+			return;
+		}
 		
-		for ( var sx=0; sx<canvas.width; ++sx ) {
-	
-		if ( sx / dwpx % 1 == 0 && x < grid.width - 1 && sx != 0) { x += 1; }
-	
+		for ( var x = 0; x < pw; ++x ) {
+
 			var p = grid.cells[y][x];
-			var color = pickColor(steps, p[0], p[1], p[2], numColors);
-			// color = segment_rgb(color,numColors);
-			img.data[off++] = color[0];
-			img.data[off++] = color[1];
-			img.data[off++] = color[2];
-			img.data[off++] = 255;
+			var color = pickColor(steps, p[0], p[1], p[2]);
+			
+			ctx.fillStyle = "rgba(" + color[0] + "," + color[1] + "," + color[2] + ",255)";
+			ctx.fillRect(x * dwpx, y * dhpx, dwpx, dhpx);
+
 		}
 	}
-
-	function render()
-	{
-		var startHeight = canvas.height;
-		var startWidth = canvas.width;
-		var y = 0;
-		var sy = 0;
-		var ourRenderId = renderId;
-
-		var scanline = function()
-		{
-			if (renderId != ourRenderId ||
-				startHeight != canvas.height ||
-				startWidth != canvas.width )
-			{
-				// Stop drawing
-				return;
-			}
-
-			drawLine(y,sy);
-			if ( sy / dhpx % 1 == 0 && y < grid.height-1 && sy != 0 ) { y += 1; }
-			ctx.putImageData(img, 0, sy);
-
-			/*
-			 * JavaScript is inherently single-threaded, and the way
-			 * you yield thread control back to the browser is MYSTERIOUS.
-			 *
-			 * People seem to use setTimeout() to yield, which lets us
-			 * make sure the canvas is updated, so that we can do animations.
-			 *
-			 * But if we do that for every scanline, it will take 100x longer
-			 * to render everything, because of overhead.	So therefore, we'll
-			 * do something in between.
-			 */
-			if ( sy++ < canvas.height ) { scanline(); }
-		};
-
-		// Disallow redrawing while rendering
-		scanline();
-	}
-
-	render();
 }
