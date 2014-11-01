@@ -29,16 +29,17 @@ function MandelGrid(width, height, realRange, complexRange, escapeRadius, iterat
 	this.height = height || 50;
 	this.realRange = realRange || [-2.6,1.4];
 	this.complexRange = complexRange || [-2,2];
-	this.dx = (this.realRange[1] - this.realRange[0]) / (0.5 + (this.width-1));
-	this.dy = (this.complexRange[1] - this.complexRange[0]) / (0.5 + (this.height-1));
+	this.adjustAspectRatio();
+	this.dx = this.realExtent() / (0.5 + (this.width-1));
+	this.dy = this.complexExtent() / (0.5 + (this.height-1));
 	this.escapeRadius = escapeRadius || 10.0;
 	this.iterations = iterations;
 	this.mandel();
 }
 
-MandelGrid.prototype.realExtent = function() { return this.realRange[1] - this.realRange[0]; }
+MandelGrid.prototype.realExtent = function() { return Math.abs(this.realRange[1] - this.realRange[0]); }
 
-MandelGrid.prototype.complexExtent = function() { return this.complexRange[1] - this.complexRange[0]; }
+MandelGrid.prototype.complexExtent = function() { return Math.abs(this.complexRange[1] - this.complexRange[0]); }
 
 // Build a grid of the specified size
 MandelGrid.prototype.mandel = function () {
@@ -124,4 +125,21 @@ function iterateEquation(Cr, Ci, escapeRadius, iterations)
 	}
 
 	return [n, Tr, Ti];
+}
+
+/*
+ * Adjust aspect ratio based on plot ranges and canvas dimensions.
+ */
+MandelGrid.prototype.adjustAspectRatio = function() {
+	var ratio = this.realExtent() / this.complexExtent();
+	var sratio = this.width/this.height;
+	if ( sratio>ratio ) {
+		var xf = sratio/ratio;
+		this.realRange[0] *= xf;
+		this.realRange[1] *= xf;
+	} else {
+		var yf = ratio/sratio;
+		this.complexRange[0] *= yf;
+		this.complexRange[1] *= yf;
+	}
 }

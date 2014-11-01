@@ -153,8 +153,6 @@ MandelCanvas.prototype.draw = function() {
 		complexRange[0] -= complexDiff;
 		complexRange[1] -= complexDiff;
 		
-		// adjustAspectRatio(xRange, yRange, this);
-		
 		var steps = parseInt($('steps').value, 10);
 
 		if ( $('autoIterations').checked ) {

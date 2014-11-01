@@ -1,7 +1,6 @@
 FROM MANDELBROIDERY:
-- make it work on mobile
-- add aspect ratio correction when pixel height != pixel width
 - zooming, unzooming
+- make it work on mobile
 - pattern scaling to fit
 - Pick colors from a discrete number of places in the colormap
 - Add MATLAB colormaps

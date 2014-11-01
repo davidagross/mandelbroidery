@@ -110,23 +110,3 @@ function metric_units(number)
 	var mag = Math.ceil((1+Math.log(number)/Math.log(10))/3);
 	return "" + (number/Math.pow(10, 3*(mag-1))).toFixed(2) + unit[mag];
 }
-
-/*
- * Adjust aspect ratio based on plot ranges and canvas dimensions.
- */
-function adjustAspectRatio(xRange, yRange, canvas)
-{
-	var ratio = Math.abs(xRange[1]-xRange[0]) / Math.abs(yRange[1]-yRange[0]);
-	var sratio = canvas.width/canvas.height;
-	if ( sratio>ratio ) {
-		var xf = sratio/ratio;
-		xRange[0] *= xf;
-		xRange[1] *= xf;
-		  zoom[0] *= xf;
-	} else {
-		var yf = ratio/sratio;
-		yRange[0] *= yf;
-		yRange[1] *= yf;
-		  zoom[1] *= yf;
-	}
-}
