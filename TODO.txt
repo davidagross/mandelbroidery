@@ -1,4 +1,5 @@
 FROM MANDELBROIDERY:
+- make it work on mobile
 - add aspect ratio correction when pixel height != pixel width
 - zooming, unzooming
 - pattern scaling to fit

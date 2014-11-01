@@ -56,10 +56,8 @@
 
 	this.valid = false; // when set to true, the canvas will redraw everything
 	this.dragging = false; // Keep track of when we are dragging the grid
-	this.startDragX = 0; // See mousedown and mousemove events for explanation
-	this.startDragY = 0
-	this.endDragX = null;
-	this.endDragY = null;
+	this.startDrag = {x: 0, y: 0}; // See mousedown and mousemove events for explanation
+	this.endDrag = {x: null, y: null};
 	this.grid = new MandelGrid();
   
 	// This is an example of a closure!
@@ -74,26 +72,36 @@
   
 	// Up, down, and move are for dragging
 	canvas.addEventListener('mousedown', function(e) {
-		var mouse = myState.getMouse(e);
-		myState.startDragX = mouse.x;
-		myState.startDragY = mouse.y;
+		myState.startDrag = myState.getMouse(e);
+		myState.dragging = true;
+		myState.valid = false;
+	}, true);
+	
+	canvas.addEventListener('touchstart', function(e) {
+		myState.startDrag = myState.getMouse(e);
 		myState.dragging = true;
 		myState.valid = false;
 	}, true);
 	
 	canvas.addEventListener('mousemove', function(e) {
 		if (myState.dragging){
-			var mouse = myState.getMouse(e);
-			// We don't want to drag the object by its top-left corner,
-			// we want to drag from where we clicked.
-			// Thats why we saved the offset and use it here
-			myState.endDragX = mouse.x;
-			myState.endDragY = mouse.y;
+			myState.endDrag = myState.getMouse(e);
+			myState.valid = false; // Something's dragging so we must redraw
+		}
+	}, true);
+	
+	canvas.addEventListener('touchmove', function(e) {
+		if (myState.dragging){
+			myState.endDrag = myState.getTouch(e);
 			myState.valid = false; // Something's dragging so we must redraw
 		}
 	}, true);
 	
 	canvas.addEventListener('mouseup', function(e) {
+		myState.dragging = false;
+	}, true);
+	
+	canvas.addEventListener('touchend', function(e) {
 		myState.dragging = false;
 	}, true);
 	
@@ -125,14 +133,14 @@ MandelCanvas.prototype.draw = function() {
 		var xDiff = yDiff = 0;
 		
 		// ** Add stuff you want drawn in the background all the time here **
-		if (this.endDragX != null && this.endDragY != null) {
-			var xDiff = this.endDragX - this.startDragX;
-			var yDiff = this.endDragY - this.startDragY;
-			this.startDragX = this.endDragX;
-			this.startDragY = this.endDragY;
+		if (this.endDrag.x != null && this.endDrag.y != null) {
+			xDiff = this.endDrag.x - this.startDrag.x;
+			yDiff = this.endDrag.y - this.startDrag.y;
+			this.startDrag.x = this.endDrag.x;
+			this.startDrag.y = this.endDrag.y;
 		}
 		
-		this.endDragX =this.endDragY = null;
+		this.endDrag.x = this.endDrag.y = null;
 		
 		var realRange = this.grid.realRange;
 		var complexRange = this.grid.complexRange;
@@ -189,7 +197,7 @@ MandelCanvas.prototype.getMouse = function(e) {
 	// Add padding and border style widths to offset
 	// Also add the offsets in case there's a position:fixed bar
 	offsetX += this.stylePaddingLeft + this.styleBorderLeft + this.htmlLeft;
-	offsetY += this.stylePaddingTop + this.styleBorderTop + this.htmlTop;
+	offsetY += this.stylePaddingTop  + this.styleBorderTop  + this.htmlTop;
 
 	mx = e.pageX - offsetX;
 	my = e.pageY - offsetY;
