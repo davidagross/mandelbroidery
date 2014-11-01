@@ -24,6 +24,8 @@
  *
  */
 
+var interiorColor = [0, 0, 0, 255];
+ 
 function getColorPicker()
 {
 	var p = $("colorScheme").value;

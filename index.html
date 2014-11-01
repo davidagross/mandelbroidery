@@ -29,7 +29,7 @@
      -->
     <link rel="stylesheet" type="text/css" href="src/styles/main.css">
   </head>
-  <body onload="focusOnSubmit();">
+  <body>
     <div id="description">
       <header>
         <div style="text-align: center;">
@@ -40,7 +40,7 @@
         </div>
       </header>
 
-      <form id="settingsForm" action="javascript:draw(getColorPicker());">
+      <form id="settingsForm">
         <table>
         <tr>
           <td>Iterations</td>
@@ -77,12 +77,12 @@
 		<tr>
           <td>Pattern Width (cells)</td>
           <td><input class="textInput" size="4" type="text"
-                id="patternWidth" value="200" /></td>
+                id="patternWidth" value="50" /></td>
         </tr>
 		<tr>
           <td>Pattern Height (cells)</td>
           <td><input class="textInput" size="4" type="text"
-                id="patternHeight" value="100" /></td>
+                id="patternHeight" value="50" /></td>
         </tr>
 		<tr>
 			<td>Pattern Scale</td>
@@ -120,7 +120,6 @@
 
     <div id="canvasContainer">
       <canvas id="canvasMandelbrot" width="0" height="0"> </canvas>
-      <canvas id="canvasControls" width="0" height="0"> </canvas>
     </div>
 
     <div id="infoBox">
@@ -129,8 +128,9 @@
 	
 	<script type="text/javascript" src="src/js/global.js"></script>
 	<script type="text/javascript" src="src/js/MandelGrid.js"></script>
-	<script type="text/javascript" src="src/js/drawing.js"></script>
+	<!--<script type="text/javascript" src="src/js/drawing.js"></script>-->
 	<script type="text/javascript" src="src/js/coloring.js"></script>    
-	<script type="text/javascript" src="src/js/controls.js"></script>
+	<!--<script type="text/javascript" src="src/js/controls.js"></script>-->
+	<script type="text/javascript" src="src/js/MandelCanvas.js"></script>
   </body>
 </html>

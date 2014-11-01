@@ -25,26 +25,30 @@
  */
  
 function MandelGrid(width, height, realRange, complexRange, escapeRadius, iterations) {
-	this.width = width;
-	this.height = height;
-	this.realRange = realRange;
-	this.complexRange = complexRange;
-	this.dx = (realRange[1] - realRange[0]) / (0.5 + (width-1));
-	this.dy = (complexRange[1] - complexRange[0]) / (0.5 + (height-1));
-	this.escapeRadius = escapeRadius;
+	this.width = width || 50;
+	this.height = height || 50;
+	this.realRange = realRange || [-2.6,1.4];
+	this.complexRange = complexRange || [-2,2];
+	this.dx = (this.realRange[1] - this.realRange[0]) / (0.5 + (this.width-1));
+	this.dy = (this.complexRange[1] - this.complexRange[0]) / (0.5 + (this.height-1));
+	this.escapeRadius = escapeRadius || 10.0;
 	this.iterations = iterations;
-	this.cells = this.mandel();
+	this.mandel();
 }
+
+MandelGrid.prototype.realExtent = function() { return this.realRange[1] - this.realRange[0]; }
+
+MandelGrid.prototype.complexExtent = function() { return this.complexRange[1] - this.complexRange[0]; }
 
 // Build a grid of the specified size
 MandelGrid.prototype.mandel = function () {
-	var cells = [];
+	this.cells = [];
   
 	var x = y = 0;
   
 	for (var i = 0; i < this.height; i++) {
 	
-		var row = cells[i] = [];
+		var row = this.cells[i] = [];
 		y = this.complexRange[0] + i*this.dy;
 
 		for (var j = 0; j < this.width; j++) {
@@ -54,8 +58,22 @@ MandelGrid.prototype.mandel = function () {
 		}
 	}
 
-	return cells;
 };
+
+MandelGrid.prototype.draw = function(ctx, steps, pickColor, size, offx, offy) {
+
+	for ( var i = 0 ; i < this.height ; i++ ) {
+		for ( var j = 0; j < this.width ; j++ ) {
+
+			var p = this.cells[i][j];
+			var color = pickColor(steps, p[0], p[1], p[2]);
+			
+			ctx.fillStyle = "rgba(" + color[0] + "," + color[1] + "," + color[2] + ",255)";
+			ctx.fillRect(j * size + offx, i * size + offy, size, size);
+			
+		}
+	}
+}
 
 /*
  * Main renderer equation.

@@ -1,4 +1,6 @@
 FROM MANDELBROIDERY:
+- add aspect ratio correction
+- zooming, unzooming
 - Pick colors from a discrete number of places in the colormap
 - Add MATLAB colormaps
 - Add colormap editor?
@@ -13,7 +15,6 @@ FROM MANDELBROT-JS:
 - Let dragging work over description and info box areas
 - Fix the auto-iterations function; consider creating an expanded polynomial for it.
 - Add right-click to zoom out (instead of shift-click)
-- Add panning
 - Only render new parts when panning
   (maintain startx and stopx in an array[height of canvas],
    update this array when panning has finished, and then restart

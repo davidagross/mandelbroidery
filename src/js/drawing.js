@@ -25,48 +25,17 @@
  */
 
 /*
- * Global variables:
- */
-var zoomStart = 3.4;
-var zoom = [zoomStart, zoomStart];
-var lookAtDefault = [-0.6, 0];
-var lookAt = lookAtDefault;
-var xRange = [0, 0];
-var yRange = [0, 0];
-var escapeRadius = 10.0;
-var interiorColor = [0, 0, 0, 255];
-var reInitCanvas = true; // Whether to reload canvas size, etc
-var dragToZoom = true;
-var colors = [[0,0,0,0]];
-var renderId = 0; // To zoom before current render is finished
-
-/*
  * Initialize canvas
  */
 var canvas = $('canvasMandelbrot');
 canvas.width  = window.innerWidth;
 canvas.height = window.innerHeight;
 
-var ccanvas = $('canvasControls');
-ccanvas.width	= window.innerWidth;
-ccanvas.height	= window.innerHeight;
+// var ccanvas = $('canvasControls');
+// ccanvas.width	= window.innerWidth;
+// ccanvas.height	= window.innerHeight;
 
 var ctx = canvas.getContext('2d');
-
-/*
- * Update URL's hash with render parameters so we can pass it around.
- */
-function updateHashTag(iterations)
-{
-	var radius = $('escapeRadius').value;
-	var scheme = $('colorScheme').value;
-
-	location.hash = 'zoom=' + zoom + '&' +
-					'lookAt=' + lookAt + '&' +
-					'iterations=' + iterations + '&' +
-					'escapeRadius=' + radius + '&' +
-					'colorScheme=' + scheme;
-}
 
 /*
  * Update small info box in lower right hand side
@@ -159,87 +128,5 @@ function adjustAspectRatio(xRange, yRange, canvas)
 		yRange[0] *= yf;
 		yRange[1] *= yf;
 		  zoom[1] *= yf;
-	}
-}
-
-/*
- * Render the Mandelbrot set
- */
-function draw(pickColor)
-{
-	if ( lookAt === null ) lookAt = [-0.6, 0];
-	if ( zoom === null ) zoom = [zoomStart, zoomStart];
-
-	xRange = [lookAt[0]-zoom[0]/2, lookAt[0]+zoom[0]/2];
-	yRange = [lookAt[1]-zoom[1]/2, lookAt[1]+zoom[1]/2];
-
-	if ( reInitCanvas ) {
-		reInitCanvas = false;
-
-		canvas = $('canvasMandelbrot');
-		canvas.width  = window.innerWidth;
-		canvas.height = window.innerHeight;
-
-		ccanvas = $('canvasControls');
-		ccanvas.width  = window.innerWidth;
-		ccanvas.height = window.innerHeight;
-
-		ctx = canvas.getContext('2d');
-
-		adjustAspectRatio(xRange, yRange, canvas);
-	}
-
-	var steps = parseInt($('steps').value, 10);
-
-	if ( $('autoIterations').checked ) {
-		var f = Math.sqrt(
-						0.001+2.0 * Math.min(
-							Math.abs(xRange[0]-xRange[1]),
-							Math.abs(yRange[0]-yRange[1])));
-
-		steps = Math.floor(223.0/f);
-		$('steps').value = String(steps);
-	}
-
-	var escapeRadius = Math.pow(parseFloat($('escapeRadius').value), 2.0);
-	
-	var pw = $('patternWidth').value;
-	var ph = $('patternHeight').value;
-	var numColors = $('numColors').value;
-	
-	var grid = new MandelGrid(pw,ph,xRange,yRange,escapeRadius,steps);
-	
-	var dwpx = ~~ (canvas.width / grid.width);
-	var dhpx = ~~ (canvas.height / grid.height);
-	
-	updateHashTag(steps);
-	updateInfoBox();
-
-	// Only enable one render at a time
-	renderId += 1;
-
-	var startHeight = canvas.height;
-	var startWidth = canvas.width;
-	var ourRenderId = renderId;
-
-	for ( var y = 0 ; y < ph ; ++y )
-	{
-		if (renderId != ourRenderId ||
-			startHeight != canvas.height ||
-			startWidth != canvas.width )
-		{
-			// Stop drawing
-			return;
-		}
-		
-		for ( var x = 0; x < pw; ++x ) {
-
-			var p = grid.cells[y][x];
-			var color = pickColor(steps, p[0], p[1], p[2]);
-			
-			ctx.fillStyle = "rgba(" + color[0] + "," + color[1] + "," + color[2] + ",255)";
-			ctx.fillRect(x * dwpx, y * dhpx, dwpx, dhpx);
-
-		}
 	}
 }
