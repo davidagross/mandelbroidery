@@ -1,6 +1,7 @@
 FROM MANDELBROIDERY:
-- add aspect ratio correction
+- add aspect ratio correction when pixel height != pixel width
 - zooming, unzooming
+- pattern scaling to fit
 - Pick colors from a discrete number of places in the colormap
 - Add MATLAB colormaps
 - Add colormap editor?

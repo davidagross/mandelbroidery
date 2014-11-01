@@ -29,6 +29,9 @@
  function MandelCanvas(canvas) {
   
 	// **** First some setup! ****
+	
+	canvas.width  = window.innerWidth;
+	canvas.height = window.innerHeight;
   
 	this.canvas = canvas;
 	this.width = canvas.width;
@@ -121,8 +124,6 @@ MandelCanvas.prototype.draw = function() {
 		
 		var xDiff = yDiff = 0;
 		
-		console.log([this.startDragX, this.startDragY, this.endDragX, this.endDragY]);
-		
 		// ** Add stuff you want drawn in the background all the time here **
 		if (this.endDragX != null && this.endDragY != null) {
 			var xDiff = this.endDragX - this.startDragX;
@@ -131,8 +132,7 @@ MandelCanvas.prototype.draw = function() {
 			this.startDragY = this.endDragY;
 		}
 		
-		this.endDragX = null;
-		this.endDragY = null;
+		this.endDragX =this.endDragY = null;
 		
 		var realRange = this.grid.realRange;
 		var complexRange = this.grid.complexRange;
@@ -213,13 +213,4 @@ MandelCanvas.prototype.updateHashTag = function(iterations)
 					'colorScheme=' + scheme;
 }
 
-// If you dont want to use <body onLoad='init()'>
-// You could uncomment this init() reference and place the script reference inside the body tag
-init();
-
-function init() {
-	var canvas = $('canvasMandelbrot');
-	canvas.width  = window.innerWidth;
-	canvas.height = window.innerHeight;
-	var s = new MandelCanvas(canvas);
-}
+var state = new MandelCanvas($('canvasMandelbrot'));
