@@ -1,5 +1,5 @@
 FROM MANDELBROIDERY:
-- zooming, unzooming
+- unzooming
 - make it work on mobile
 - pattern scaling to fit
 - Pick colors from a discrete number of places in the colormap

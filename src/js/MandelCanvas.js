@@ -55,9 +55,11 @@
 	// **** Keep track of state! ****
 
 	this.valid = false; // when set to true, the canvas will redraw everything
-	this.dragging = false; // Keep track of when we are dragging the grid
-	this.startDrag = {x: 0, y: 0}; // See mousedown and mousemove events for explanation
-	this.endDrag = {x: null, y: null};
+	this.maybeDragging = false; // Keep track of when we are dragging the grid
+	this.startDrag = {x: null, y: null}; // See mousedown and mousemove events for explanation
+	this.midDrag = this.startDrag;
+	this.endDrag = this.startDrag;
+	// this.zoomIn = false;
 	this.grid = new MandelGrid();
   
 	// This is an example of a closure!
@@ -73,39 +75,55 @@
 	// Up, down, and move are for dragging
 	canvas.addEventListener('mousedown', function(e) {
 		myState.startDrag = myState.getMouse(e);
-		myState.dragging = true;
-		myState.valid = false;
+		myState.midDrag = myState.startDrag;
+		myState.maybeDragging = true;
+		myState.dragged = false;
 	}, true);
 	
 	canvas.addEventListener('touchstart', function(e) {
 		myState.startDrag = myState.getMouse(e);
-		myState.dragging = true;
-		myState.valid = false;
+		myState.midDrag = myState.startDrag;
+		myState.maybeDragging = true;
+		myState.dragged = false;
 	}, true);
 	
 	canvas.addEventListener('mousemove', function(e) {
-		if (myState.dragging){
+		if (myState.maybeDragging){
 			myState.endDrag = myState.getMouse(e);
+			myState.dragged = true;
 			myState.valid = false; // Something's dragging so we must redraw
 		}
 	}, true);
 	
 	canvas.addEventListener('touchmove', function(e) {
-		if (myState.dragging){
-			myState.endDrag = myState.getTouch(e);
+		if (myState.maybeDragging){
+			myState.endDrag = myState.getMouse(e);
+			myState.dragged = true;
 			myState.valid = false; // Something's dragging so we must redraw
 		}
 	}, true);
 	
 	canvas.addEventListener('mouseup', function(e) {
-		myState.dragging = false;
+		myState.endDrag = myState.getMouse(e);
+		myState.maybeDragging = false;
+		myState.dragged = (myState.startDrag.x != myState.endDrag.x && myState.startDrag.y != myState.endDrag.y); 
+		myState.valid = false; // Something may have dragged or clicked so we must redraw
 	}, true);
 	
 	canvas.addEventListener('touchend', function(e) {
-		myState.dragging = false;
+		myState.endDrag = myState.getMouse(e);
+		myState.maybeDragging = false;
+		myState.dragged = (myState.startDrag.x != myState.endDrag.x && myState.startDrag.y != myState.endDrag.y); 
+		myState.valid = false; // Something may have dragged or clicked so we must redraw
 	}, true);
 	
-	this.interval = 30;
+	/*
+	canvas.addEventListener('dblclick', function(e) {
+		myState.zoomIn = false;
+	}, true);
+	*/
+	
+	this.interval = 20;
 	setInterval(function() { myState.draw(); }, myState.interval);
 	
 }
@@ -127,32 +145,48 @@ MandelCanvas.prototype.draw = function() {
 		var pw = $('patternWidth').value;
 		var ph = $('patternHeight').value;
 		
-		var offx = (this.canvas.width - pw * size)/2;
-		var offy = (this.canvas.height - ph * size)/2;
-		
-		var xDiff = yDiff = 0;
-		
-		// ** Add stuff you want drawn in the background all the time here **
-		if (this.endDrag.x != null && this.endDrag.y != null) {
-			xDiff = this.endDrag.x - this.startDrag.x;
-			yDiff = this.endDrag.y - this.startDrag.y;
-			this.startDrag.x = this.endDrag.x;
-			this.startDrag.y = this.endDrag.y;
-		}
-		
-		this.endDrag.x = this.endDrag.y = null;
+		var offx = (this.canvas.width  - pw * size) / 2.0;
+		var offy = (this.canvas.height - ph * size) / 2.0;
 		
 		var realRange = this.grid.realRange;
-		var complexRange = this.grid.complexRange;
-
-		var realDiff = this.grid.realExtent() / (pw * size) * xDiff;
-		var complexDiff = this.grid.complexExtent() / (ph * size) * yDiff;
-		
-		realRange[0] -= realDiff;
-		realRange[1] -= realDiff;
-		complexRange[0] -= complexDiff;
-		complexRange[1] -= complexDiff;
-		
+		var complexRange = this.grid.complexRange;		
+						
+		// ** Add stuff you want drawn in the background all the time here **
+		if (this.dragged) {
+			// if dragging, recenter based on the distance of the drag
+			var xDiff = this.endDrag.x - this.midDrag.x;
+			var yDiff = this.endDrag.y - this.midDrag.y;
+			var realDiff = this.grid.realExtent() / (pw * size) * xDiff;
+			var complexDiff = this.grid.complexExtent() / (ph * size) * yDiff;
+			
+			// recenter to end of the drag
+			realRange[0] -= realDiff;
+			realRange[1] -= realDiff;
+			complexRange[0] -= complexDiff;
+			complexRange[1] -= complexDiff;
+			
+			// so we don't accelerate away
+			this.midDrag = this.endDrag;
+		/*} else if (!this.zoomIn) {
+			realRange[0] -= this.grid.realExtent()/2;
+			realRange[1] += this.grid.realExtent()/2;
+			complexRange[0] -= this.grid.complexExtent()/2;
+			complexRange[1] += this.grid.complexExtent()/2;
+			this.zoomIn = true;*/
+		} else if (this.startDrag.x != null && this.startDrag.y !=  null) { // but not on initiation (the null check)
+			// if clicking, find difference to center
+			xDiff = this.canvas.width/2.0 - this.startDrag.x;
+			yDiff = this.canvas.height/2.0 - this.startDrag.y;
+			var realDiff = this.grid.realExtent() / (pw * size) * xDiff;
+			var complexDiff = this.grid.complexExtent() / (ph * size) * yDiff;
+			
+			// recenter and zoom
+			realRange[0] -= realDiff - this.grid.realExtent()/4;
+			realRange[1] -= realDiff + this.grid.realExtent()/4;
+			complexRange[0] -= complexDiff - this.grid.complexExtent()/4;
+			complexRange[1] -= complexDiff + this.grid.complexExtent()/4;
+		}
+				
 		var steps = parseInt($('steps').value, 10);
 
 		if ( $('autoIterations').checked ) {
