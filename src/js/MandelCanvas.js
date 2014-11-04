@@ -59,7 +59,8 @@
 	this.startDrag = {x: null, y: null}; // See mousedown and mousemove events for explanation
 	this.midDrag = this.startDrag;
 	this.endDrag = this.startDrag;
-	// this.zoomIn = false;
+	this.zooming = false;
+	this.zoomDelta = 0;
 	this.grid = new MandelGrid();
   
 	// This is an example of a closure!
@@ -117,11 +118,17 @@
 		myState.valid = false; // Something may have dragged or clicked so we must redraw
 	}, true);
 	
-	/*
-	canvas.addEventListener('dblclick', function(e) {
-		myState.zoomIn = false;
+	// modified from http://www.sitepoint.com/html5-javascript-mouse-wheel/
+	canvas.addEventListener("mousewheel", function(e) {
+		// cross-browser wheel delta
+		var e = window.event || e;
+		myState.startDrag = myState.getMouse(e);
+		myState.zooming = true;
+		myState.zoomDelta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+		myState.valid = false;
+		if (myState.zoomDelta == 0) { myState.zooming = false; myState.valid = true; }
 	}, true);
-	*/
+	// canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
 	
 	this.interval = 20;
 	setInterval(function() { myState.draw(); }, myState.interval);
@@ -167,13 +174,9 @@ MandelCanvas.prototype.draw = function() {
 			
 			// so we don't accelerate away
 			this.midDrag = this.endDrag;
-		/*} else if (!this.zoomIn) {
-			realRange[0] -= this.grid.realExtent()/2;
-			realRange[1] += this.grid.realExtent()/2;
-			complexRange[0] -= this.grid.complexExtent()/2;
-			complexRange[1] += this.grid.complexExtent()/2;
-			this.zoomIn = true;*/
-		} else if (this.startDrag.x != null && this.startDrag.y !=  null) { // but not on initiation (the null check)
+		} 
+		
+		if (this.zooming) {
 			// if clicking, find difference to center
 			xDiff = this.canvas.width/2.0 - this.startDrag.x;
 			yDiff = this.canvas.height/2.0 - this.startDrag.y;
@@ -181,10 +184,16 @@ MandelCanvas.prototype.draw = function() {
 			var complexDiff = this.grid.complexExtent() / (ph * size) * yDiff;
 			
 			// recenter and zoom
-			realRange[0] -= realDiff - this.grid.realExtent()/4;
-			realRange[1] -= realDiff + this.grid.realExtent()/4;
-			complexRange[0] -= complexDiff - this.grid.complexExtent()/4;
-			complexRange[1] -= complexDiff + this.grid.complexExtent()/4;
+			var zoomScale  = 1/8.0;
+			var shiftScale = 0.0;   // TODO: want this to actually be a restoring force 
+									// toward where you are pointing on zoomin and
+									// a restoring force toward (0,0) on zoom out
+			realRange[0]    += shiftScale * realDiff    + zoomScale * this.zoomDelta * this.grid.realExtent();
+			realRange[1]    += shiftScale * realDiff    - zoomScale * this.zoomDelta * this.grid.realExtent();
+			complexRange[0] += shiftScale * complexDiff + zoomScale * this.zoomDelta * this.grid.complexExtent();
+			complexRange[1] += shiftScale * complexDiff - zoomScale * this.zoomDelta * this.grid.complexExtent();
+			
+			this.zooming = false;
 		}
 				
 		var steps = parseInt($('steps').value, 10);
