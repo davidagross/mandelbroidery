@@ -26,12 +26,17 @@
  
  // with help from http://simonsarris.com/blog/510-making-html5-canvas-useful !!!
  
- function MandelCanvas(canvas) {
+ function MandelCanvas(canvas, mask) {
   
 	// **** First some setup! ****
 	
 	canvas.width  = window.innerWidth;
 	canvas.height = window.innerHeight;
+  
+	mask.width = canvas.width;
+	mask.height = canvas.height-10;
+	
+	this.maskCtx = mask.getContext('2d');
   
 	this.canvas = canvas;
 	this.width = canvas.width;
@@ -86,7 +91,7 @@
 		myState.midDrag = myState.startDrag;
 		myState.maybeDragging = true;
 		myState.dragged = false;
-	}, true);
+	}, false);
 	
 	canvas.addEventListener('mousemove', function(e) {
 		if (myState.maybeDragging){
@@ -102,7 +107,7 @@
 			myState.dragged = true;
 			myState.valid = false; // Something's dragging so we must redraw
 		}
-	}, true);
+	}, false);
 	
 	canvas.addEventListener('mouseup', function(e) {
 		myState.endDrag = myState.getMouse(e);
@@ -116,7 +121,7 @@
 		myState.maybeDragging = false;
 		myState.dragged = (myState.startDrag.x != myState.endDrag.x && myState.startDrag.y != myState.endDrag.y); 
 		myState.valid = false; // Something may have dragged or clicked so we must redraw
-	}, true);
+	}, false);
 	
 	// modified from http://www.sitepoint.com/html5-javascript-mouse-wheel/
 	canvas.addEventListener("mousewheel", function(e) {
@@ -216,7 +221,11 @@ MandelCanvas.prototype.draw = function() {
 		this.grid.draw(ctx, steps, getColorPicker(), size, offx, offy);
 		
 		// ** Add stuff you want drawn on top all the time here **
-
+		console.log($('patternMask').value);
+		this.maskCtx.fillStyle = "rgba(4,4," + $('patternMask').value + ",4)";
+		console.log(this.maskCtx.fillStyle);
+		this.maskCtx.fillRect(0,0,this.canvas.width,this.canvas.height-10);
+		
 		this.valid = true;
 	}
 }
@@ -259,4 +268,4 @@ MandelCanvas.prototype.updateHashTag = function(iterations)
 					'colorScheme=' + scheme;
 }
 
-var state = new MandelCanvas($('canvasMandelbrot'));
+var state = new MandelCanvas($('canvasMandelbrot'), $('canvasMask'));

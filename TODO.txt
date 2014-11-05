@@ -1,11 +1,11 @@
 FROM MANDELBROIDERY:
+- Mask view to be of the fixed pattern size
 - Pick colors from a discrete number of places in the colormap
 - Add MATLAB colormaps
 - Add colormap editor?
 - Add lookup of DMC colors
 - Add legend of DMC colors to PNG view
 - Add grid for printing to png view
-- Mask view to be of the fixed pattern size
 - Set non-zero alpha outside of masked pattern
 - Updated README about MATLAB and JS
 - make it work on mobile

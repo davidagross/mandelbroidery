@@ -45,6 +45,8 @@ $('patternWidth').onchange = function(event) { state.valid = false; }
 
 $('patternHeight').onchange = function(event) { state.valid = false; }
 
+$('patternMask').oninput = function(event) { state.valid = false; console.log(undefined); }
+
 $('resetButton').onclick = function(event)
 {
 	$('settingsForm').reset();
