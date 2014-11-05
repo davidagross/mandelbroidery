@@ -177,21 +177,18 @@ MandelCanvas.prototype.draw = function() {
 		} 
 		
 		if (this.zooming) {
-			// if clicking, find difference to center
+			// find difference to center
 			xDiff = this.canvas.width/2.0 - this.startDrag.x;
 			yDiff = this.canvas.height/2.0 - this.startDrag.y;
 			var realDiff = this.grid.realExtent() / (pw * size) * xDiff;
 			var complexDiff = this.grid.complexExtent() / (ph * size) * yDiff;
-			
-			// recenter and zoom
-			var zoomScale  = 1/8.0;
-			var shiftScale = 0.0;   // TODO: want this to actually be a restoring force 
-									// toward where you are pointing on zoomin and
-									// a restoring force toward (0,0) on zoom out
-			realRange[0]    += shiftScale * realDiff    + zoomScale * this.zoomDelta * this.grid.realExtent();
-			realRange[1]    += shiftScale * realDiff    - zoomScale * this.zoomDelta * this.grid.realExtent();
-			complexRange[0] += shiftScale * complexDiff + zoomScale * this.zoomDelta * this.grid.complexExtent();
-			complexRange[1] += shiftScale * complexDiff - zoomScale * this.zoomDelta * this.grid.complexExtent();
+				
+			// zoom around mouse location
+			var zoom    = this.zoomDelta / 8.0;
+			realRange[0]    += zoom * (this.grid.realExtent()   /2.0 - realDiff);
+			realRange[1]    -= zoom * (this.grid.realExtent()   /2.0 + realDiff);
+			complexRange[0] += zoom * (this.grid.complexExtent()/2.0 - complexDiff);
+			complexRange[1] -= zoom * (this.grid.complexExtent()/2.0 + complexDiff);
 			
 			this.zooming = false;
 		}
