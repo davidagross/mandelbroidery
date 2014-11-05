@@ -146,11 +146,11 @@ MandelCanvas.prototype.draw = function() {
 	if (!this.valid) {
 		var ctx = this.ctx;
 		this.clear();
-
-		var size = 10;
 		
 		var pw = $('patternWidth').value;
 		var ph = $('patternHeight').value;
+		
+		var size = Math.min(this.canvas.width / (1*pw+10.0), this.canvas.height / (1*ph+10.0));
 		
 		var offx = (this.canvas.width  - pw * size) / 2.0;
 		var offy = (this.canvas.height - ph * size) / 2.0;
