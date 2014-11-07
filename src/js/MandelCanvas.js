@@ -26,17 +26,12 @@
  
  // with help from http://simonsarris.com/blog/510-making-html5-canvas-useful !!!
  
- function MandelCanvas(canvas, mask) {
+ function MandelCanvas(canvas) {
   
 	// **** First some setup! ****
 	
 	canvas.width  = window.innerWidth;
 	canvas.height = window.innerHeight;
-  
-	mask.width = canvas.width;
-	mask.height = canvas.height-10;
-	
-	this.maskCtx = mask.getContext('2d');
   
 	this.canvas = canvas;
 	this.width = canvas.width;
@@ -157,19 +152,26 @@ MandelCanvas.prototype.draw = function() {
 		
 		var size = Math.min(this.canvas.width / (1*pw+10.0), this.canvas.height / (1*ph+10.0));
 		
-		var offx = (this.canvas.width  - pw * size) / 2.0;
-		var offy = (this.canvas.height - ph * size) / 2.0;
+		// var gw = Math.round(this.canvas.width / size);
+		// var gh = Math.round(this.canvas.height / size);
+		// var offx = (this.canvas.width  - gw * size) / 2.0;
+		// var offy = (this.canvas.height - gh * size) / 2.0;
+		
+		var offx = (this.canvas.width  - pw * size) / 2.0; // buffx
+		var offy = (this.canvas.height - ph * size) / 2.0; // buffy
 		
 		var realRange = this.grid.realRange;
-		var complexRange = this.grid.complexRange;		
+		var complexRange = this.grid.complexRange;
 						
 		// ** Add stuff you want drawn in the background all the time here **
 		if (this.dragged) {
 			// if dragging, recenter based on the distance of the drag
 			var xDiff = this.endDrag.x - this.midDrag.x;
 			var yDiff = this.endDrag.y - this.midDrag.y;
-			var realDiff = this.grid.realExtent() / (pw * size) * xDiff;
+			var realDiff    =    this.grid.realExtent() / (pw * size) * xDiff;
 			var complexDiff = this.grid.complexExtent() / (ph * size) * yDiff;
+			// var realDiff    =    this.grid.realExtent() / (gw * size) * xDiff;
+			// var complexDiff = this.grid.complexExtent() / (gh * size) * yDiff;
 			
 			// recenter to end of the drag
 			realRange[0] -= realDiff;
@@ -183,10 +185,12 @@ MandelCanvas.prototype.draw = function() {
 		
 		if (this.zooming) {
 			// find difference to center
-			xDiff = this.canvas.width/2.0 - this.startDrag.x;
+			xDiff =  this.canvas.width/2.0 - this.startDrag.x;
 			yDiff = this.canvas.height/2.0 - this.startDrag.y;
-			var realDiff = this.grid.realExtent() / (pw * size) * xDiff;
+			var realDiff    =    this.grid.realExtent() / (pw * size) * xDiff;
 			var complexDiff = this.grid.complexExtent() / (ph * size) * yDiff;
+			// var realDiff    =    this.grid.realExtent() / (gw * size) * xDiff;
+			// var complexDiff = this.grid.complexExtent() / (gh * size) * yDiff;
 				
 			// zoom around mouse location
 			var zoom    = this.zoomDelta / 8.0;
@@ -212,8 +216,9 @@ MandelCanvas.prototype.draw = function() {
 		var escapeRadius = Math.pow(parseFloat($('escapeRadius').value), 2.0);
 		
 		var numColors = $('numColors').value;
-				
-		this.grid = new MandelGrid(pw,ph,realRange,complexRange,escapeRadius,steps);
+		
+		this.grid = new MandelGrid(pw,ph,realRange,complexRange,escapeRadius,steps);		
+		// this.grid = new MandelGrid(gw,gh,realRange,complexRange,escapeRadius,steps);
 		
 		// updateHashTag(steps);
 		// updateInfoBox();
@@ -221,10 +226,11 @@ MandelCanvas.prototype.draw = function() {
 		this.grid.draw(ctx, steps, getColorPicker(), size, offx, offy);
 		
 		// ** Add stuff you want drawn on top all the time here **
-		console.log($('patternMask').value);
-		this.maskCtx.fillStyle = "rgba(4,4," + $('patternMask').value + ",4)";
-		console.log(this.maskCtx.fillStyle);
-		this.maskCtx.fillRect(0,0,this.canvas.width,this.canvas.height-10);
+		// this.ctx.fillStyle = "rgba(0,0,0," + $('patternMask').value + ")";
+		// this.ctx.fillRect(              0,               0, this.canvas.width,   buffy);
+		// this.ctx.fillRect(              0, buffy + ph*size, this.canvas.width,   buffy);
+		// this.ctx.fillRect(              0,           buffy,             buffx, ph*size);
+		// this.ctx.fillRect(buffx + pw*size,           buffy,             buffx, ph*size);
 		
 		this.valid = true;
 	}
@@ -268,4 +274,4 @@ MandelCanvas.prototype.updateHashTag = function(iterations)
 					'colorScheme=' + scheme;
 }
 
-var state = new MandelCanvas($('canvasMandelbrot'), $('canvasMask'));
+var state = new MandelCanvas($('canvasMandelbrot'));
