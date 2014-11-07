@@ -1,4 +1,6 @@
 FROM MANDELBROIDERY:
+- deal with refresh zoom bug when pattern aspect ratio != 1
+- deal with draw-failure on link click (need to refresh once url is set?)
 - Pick colors from a discrete number of places in the colormap
 - Add MATLAB colormaps
 - Add colormap editor?

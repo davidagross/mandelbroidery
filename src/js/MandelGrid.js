@@ -41,6 +41,10 @@ MandelGrid.prototype.realExtent = function() { return Math.abs(this.realRange[1]
 
 MandelGrid.prototype.complexExtent = function() { return Math.abs(this.complexRange[1] - this.complexRange[0]); }
 
+MandelGrid.prototype.realCenter = function() { return (this.realRange[1] + this.realRange[0])/2.0; }
+
+MandelGrid.prototype.complexCenter = function() { return (this.complexRange[1] + this.complexRange[0])/2.0; }
+
 // Build a grid of the specified size
 MandelGrid.prototype.mandel = function () {
 	this.cells = [];
@@ -50,7 +54,7 @@ MandelGrid.prototype.mandel = function () {
 	for (var i = 0; i < this.height; i++) {
 	
 		var row = this.cells[i] = [];
-		y = this.complexRange[0] + i*this.dy;
+		y = this.complexRange[1] - i*this.dy;
 
 		for (var j = 0; j < this.width; j++) {
 			
@@ -61,7 +65,7 @@ MandelGrid.prototype.mandel = function () {
 
 };
 
-MandelGrid.prototype.draw = function(ctx, steps, pickColor, size, offx, offy) {
+MandelGrid.prototype.draw = function(ctx, steps, pickColor, size, offx, offy, spacing) {
 
 	for ( var i = 0 ; i < this.height ; i++ ) {
 		for ( var j = 0; j < this.width ; j++ ) {
@@ -69,8 +73,8 @@ MandelGrid.prototype.draw = function(ctx, steps, pickColor, size, offx, offy) {
 			var p = this.cells[i][j];
 			var color = pickColor(steps, p[0], p[1], p[2]);
 			
-			ctx.fillStyle = "rgba(" + color[0] + "," + color[1] + "," + color[2] + ",255)";
-			ctx.fillRect(j * size + offx, i * size + offy, size, size);
+			ctx.fillStyle = "rgba(" + color[0] + "," + color[1] + "," + color[2] + ",1)";
+			ctx.fillRect(j * size + offx, i * size + offy, size-spacing, size-spacing);
 			
 		}
 	}
@@ -132,14 +136,16 @@ function iterateEquation(Cr, Ci, escapeRadius, iterations)
  */
 MandelGrid.prototype.adjustAspectRatio = function() {
 	var ratio = this.realExtent() / this.complexExtent();
-	var sratio = this.width/this.height;
+	var sratio = this.width / this.height;
 	if ( sratio>ratio ) {
 		var xf = sratio/ratio;
-		this.realRange[0] *= xf;
-		this.realRange[1] *= xf;
+		var center = this.realCenter();
+		this.realRange[0] = (this.realRange[0] - center)*xf + center;
+		this.realRange[1] = (this.realRange[1] - center)*xf + center;
 	} else {
 		var yf = ratio/sratio;
-		this.complexRange[0] *= yf;
-		this.complexRange[1] *= yf;
+		var center = this.complexCenter();
+		this.complexRange[0] = (this.complexRange[0] - center)*yf + center;
+		this.complexRange[1] = (this.complexRange[1] - center)*yf + center;
 	}
 }

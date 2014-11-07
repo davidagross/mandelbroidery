@@ -133,6 +133,8 @@
 	this.interval = 20;
 	setInterval(function() { myState.draw(); }, myState.interval);
 	
+	this.readHashTag();
+	
 }
 
 MandelCanvas.prototype.clear = function() {
@@ -144,6 +146,7 @@ MandelCanvas.prototype.clear = function() {
 MandelCanvas.prototype.draw = function() {
 	// if our state is invalid, redraw and validate!
 	if (!this.valid) {
+	
 		var ctx = this.ctx;
 		this.clear();
 		
@@ -162,7 +165,7 @@ MandelCanvas.prototype.draw = function() {
 		
 		var realRange = this.grid.realRange;
 		var complexRange = this.grid.complexRange;
-						
+				
 		// ** Add stuff you want drawn in the background all the time here **
 		if (this.dragged) {
 			// if dragging, recenter based on the distance of the drag
@@ -176,8 +179,8 @@ MandelCanvas.prototype.draw = function() {
 			// recenter to end of the drag
 			realRange[0] -= realDiff;
 			realRange[1] -= realDiff;
-			complexRange[0] -= complexDiff;
-			complexRange[1] -= complexDiff;
+			complexRange[0] += complexDiff;
+			complexRange[1] += complexDiff;
 			
 			// so we don't accelerate away
 			this.midDrag = this.endDrag;
@@ -193,37 +196,38 @@ MandelCanvas.prototype.draw = function() {
 			// var complexDiff = this.grid.complexExtent() / (gh * size) * yDiff;
 				
 			// zoom around mouse location
-			var zoom    = this.zoomDelta / 8.0;
-			realRange[0]    += zoom * (this.grid.realExtent()   /2.0 - realDiff);
-			realRange[1]    -= zoom * (this.grid.realExtent()   /2.0 + realDiff);
-			complexRange[0] += zoom * (this.grid.complexExtent()/2.0 - complexDiff);
-			complexRange[1] -= zoom * (this.grid.complexExtent()/2.0 + complexDiff);
+			var zoom         = this.zoomDelta / 16.0;
+			realRange[0]    += zoom * (this.grid.realExtent()    / 2.0 - realDiff);
+			realRange[1]    -= zoom * (this.grid.realExtent()    / 2.0 + realDiff);
+			complexRange[0] += zoom * (this.grid.complexExtent() / 2.0 + complexDiff);
+			complexRange[1] -= zoom * (this.grid.complexExtent() / 2.0 - complexDiff);
 			
 			this.zooming = false;
 		}
-				
+		
 		var steps = parseInt($('steps').value, 10);
 
 		if ( $('autoIterations').checked ) {
-			var f = Math.sqrt(
-							0.001+2.0 * Math.min(
+			var f = Math.sqrt(  0.001+2.0 * Math.min(
 								Math.abs(this.grid.realExtent()),
-								Math.abs(this.grid.complexExtent())));
-			steps = Math.floor(223.0/f);
+								Math.abs(this.grid.complexExtent())) );
+			steps = Math.floor( 223.0/f );
 			$('steps').value = String(steps);
 		}
 
-		var escapeRadius = Math.pow(parseFloat($('escapeRadius').value), 2.0);
+		//var escapeRadius = Math.pow(parseFloat($('escapeRadius').value), 2.0);
+		
+		var escapeRadius = parseFloat($('escapeRadius').value);
 		
 		var numColors = $('numColors').value;
 		
 		this.grid = new MandelGrid(pw,ph,realRange,complexRange,escapeRadius,steps);		
 		// this.grid = new MandelGrid(gw,gh,realRange,complexRange,escapeRadius,steps);
 		
-		// updateHashTag(steps);
-		// updateInfoBox();
-
-		this.grid.draw(ctx, steps, getColorPicker(), size, offx, offy);
+		this.updateHashTag(steps);		
+		this.updateInfoBox();
+		
+		this.grid.draw(ctx, steps, getColorPicker(), size, offx, offy, -1);
 		
 		// ** Add stuff you want drawn on top all the time here **
 		// this.ctx.fillStyle = "rgba(0,0,0," + $('patternMask').value + ")";
@@ -264,14 +268,95 @@ MandelCanvas.prototype.getMouse = function(e) {
  */
 MandelCanvas.prototype.updateHashTag = function(iterations)
 {
-	var radius = $('escapeRadius').value;
 	var scheme = $('colorScheme').value;
 
-	location.hash = 'zoom=' + zoom + '&' +
-					'lookAt=' + lookAt + '&' +
+	location.hash = 'center='  + this.grid.realCenter() + ',' + this.grid.complexCenter() + '&' + 
+					'extent='  + this.grid.realExtent() + ',' + this.grid.complexExtent() + '&' +
+					'pattern=' +        this.grid.width + ',' + this.grid.height + '&' +
 					'iterations=' + iterations + '&' +
-					'escapeRadius=' + this.grid.radius + '&' +
+					'escapeRadius=' + this.grid.escapeRadius + '&' +
 					'colorScheme=' + scheme;
+}
+
+/*
+ * Update small info box in lower right hand side
+ */
+MandelCanvas.prototype.updateInfoBox = function()
+{
+	// Update infobox
+	$('infoBox').innerHTML =
+		'x<sub>0</sub>=' + this.grid.realRange[0] + ' y<sub>0</sub>=' + this.grid.complexRange[0] + ' ' +
+		'x<sub>1</sub>=' + this.grid.realRange[1] + ' y<sub>1</sub>=' + this.grid.complexRange[1];
+}
+
+/*
+ * Parse URL hash tag, returns whether we should redraw.
+ */
+MandelCanvas.prototype.readHashTag = function()
+{
+	var tags = location.hash.slice(1).split('&');
+
+	for ( var i=0; i<tags.length; ++i ) {
+		var tag = tags[i].split('=');
+		var key = tag[0];
+		var val = tag[1];
+		
+		switch ( key ) {
+			case 'center': {
+				var c = val.split(',');
+				var center = [parseFloat(c[0]), parseFloat(c[1])];
+				var realRange = this.grid.realRange;
+				var realCenter = this.grid.realCenter();
+				realRange[0] += center[0] - realCenter;
+				realRange[1] += center[0] - realCenter;
+				var complexRange = this.grid.complexRange;
+				var complexCenter = this.grid.complexCenter();
+				complexRange[0] += center[1] - complexCenter;
+				complexRange[1] += center[1] - complexCenter;
+				this.grid = new MandelGrid(this.grid.width, this.grid.height, realRange, complexRange, this.grid.escapeRadius, this.grid.iterations);
+				this.valid = false;
+			} break;
+
+			case 'extent': {
+				var e = val.split(',');
+				var extent = [parseFloat(e[0]), parseFloat(e[1])];
+				var realRange = this.grid.realRange;
+				var realCenter = this.grid.realCenter();
+				realRange[0] = realCenter - extent[0]/2.0;
+				realRange[1] = realCenter + extent[0]/2.0;
+				var complexRange = this.grid.complexRange;
+				var complexCenter = this.grid.complexCenter();
+				complexRange[0] = complexCenter - extent[1]/2.0;
+				complexRange[1] = complexCenter + extent[1]/2.0;
+				this.grid = new MandelGrid(this.grid.width, this.grid.height, realRange, complexRange, this.grid.escapeRadius, this.grid.iterations);
+				this.valid = false;
+			} break;
+
+			case 'pattern': {
+				var p = val.split(',');
+				$('patternWidth').value = String(parseInt(p[0]));
+				$('patternHeight').value = String(parseInt(p[1]));
+				this.valid = false;
+			} break;
+			
+			case 'iterations': {
+				$('steps').value = String(parseInt(val, 10));
+				$('autoIterations').checked = false;
+				this.valid = false;
+			} break;
+
+			case 'escapeRadius': {
+				escapeRadius = parseFloat(val);
+				$('escapeRadius').value = String(escapeRadius);
+				this.valid = false;
+			} break;
+
+			case 'colorScheme': {
+				$('colorScheme').value = String(val);
+				this.valid = false;
+			} break;
+		}
+	}
 }
 
 var state = new MandelCanvas($('canvasMandelbrot'));
