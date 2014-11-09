@@ -86,7 +86,8 @@
 		myState.midDrag = myState.startDrag;
 		myState.maybeDragging = true;
 		myState.dragged = false;
-	}, false);
+		return false;
+	}, true);
 	
 	canvas.addEventListener('mousemove', function(e) {
 		if (myState.maybeDragging){
@@ -102,7 +103,8 @@
 			myState.dragged = true;
 			myState.valid = false; // Something's dragging so we must redraw
 		}
-	}, false);
+		return false;
+	}, true);
 	
 	canvas.addEventListener('mouseup', function(e) {
 		myState.endDrag = myState.getMouse(e);
@@ -116,7 +118,8 @@
 		myState.maybeDragging = false;
 		myState.dragged = (myState.startDrag.x != myState.endDrag.x && myState.startDrag.y != myState.endDrag.y); 
 		myState.valid = false; // Something may have dragged or clicked so we must redraw
-	}, false);
+		return false;
+	}, true);
 	
 	// modified from http://www.sitepoint.com/html5-javascript-mouse-wheel/
 	canvas.addEventListener("mousewheel", function(e) {
