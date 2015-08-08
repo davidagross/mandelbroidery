@@ -1,17 +1,3 @@
-FROM MANDELBROIDERY:
-- Pick colors from a discrete number of places in the colormap
-- Add MATLAB colormaps
-- Add colormap editor?
-- Add lookup of DMC colors
-- Add legend of DMC colors to PNG view
-- deal with refresh zoom bug when pattern aspect ratio != 1
-- deal with draw-failure on link click (need to refresh once url is set?)
-- Add grid for printing to png view
-- Set non-zero alpha outside of masked pattern
-- Updated README about MATLAB and JS
-- make it work on mobile
-- add line-by-line rendering for high-res pictures
-
 FROM MANDELBROT-JS:
 - Ability to minimize settings console
 - Let dragging work outside window boundaries
